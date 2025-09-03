@@ -1,0 +1,28 @@
+.env
+
+# Binaries and build artifacts
+/bin/
+/build/
+/out/
+/dist/
+/target/
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.o
+*.obj
+*.a
+*.lib
+*.class
+*.pyc
+*.pyo
+*.pyd
+*.jar
+*.war
+*.ear
+
+# Go build Binaries
+api
+!cmd/api
