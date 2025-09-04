@@ -17,28 +17,30 @@ var (
 	ErrDatabaseConnection = errors.New("failed to connect to the database")
 )
 
-func Connect(uri, database string) (*mongo.Client, error) {
+func Connect(uri, name string) (*mongo.Client, *mongo.Database, error) {
 
 	if uri == "" {
-		return nil, ErrMongoURIMissing
+		return nil, nil, ErrMongoURIMissing
 	}
 
 	opts := options.Client().ApplyURI(uri).SetTimeout(5 * time.Second)
 	client, err := mongo.Connect(opts)
 	if err != nil {
-		return nil, ErrDatabaseClient
+		return nil, nil, ErrDatabaseClient
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), *opts.Timeout)
 	defer cancel()
 
+	db := client.Database(name)
+
 	var result bson.M
-	err = client.Database(database).RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Decode(&result)
+	err = db.RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Decode(&result)
 	if err != nil {
-		return nil, ErrDatabaseConnection
+		return nil, nil, ErrDatabaseConnection
 	}
 
 	log.Default().Println("Connected to MongoDB")
 
-	return client, nil
+	return client, db, nil
 }
