@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/DieGopherLT/mfc_backend/internal/controller"
 	"github.com/DieGopherLT/mfc_backend/internal/database/repository"
+	"github.com/DieGopherLT/mfc_backend/internal/services/github"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -12,9 +13,12 @@ func setupRoutes(app *fiber.App, db *mongo.Database) *fiber.App {
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
 
+	// Services
+	githubService := github.NewGithubService()
+
 	// Handlers
 	userHandler := controller.NewUserHandler(userRepo)
-	authHandler := controller.NewAuthHandler(userRepo)
+	authHandler := controller.NewAuthHandler(userRepo, githubService)
 
 	// Versions
 	v1 := app.Group("/api/v1")

@@ -3,16 +3,19 @@ package controller
 import (
 	"github.com/DieGopherLT/mfc_backend/internal/database/models"
 	"github.com/DieGopherLT/mfc_backend/internal/database/repository"
+	"github.com/DieGopherLT/mfc_backend/internal/services/github"
 	"github.com/gofiber/fiber/v2"
 )
 
 type AuthHandler struct {
 	UserRepo repository.UserRepository
+	GitHubService *github.GithubService
 }
 
-func NewAuthHandler(userRepo repository.UserRepository) *AuthHandler {
+func NewAuthHandler(userRepo repository.UserRepository, githubService *github.GithubService) *AuthHandler {
 	return &AuthHandler{
 		UserRepo: userRepo,
+		GitHubService: githubService,
 	}
 }
 
@@ -38,6 +41,14 @@ func (h *AuthHandler) Sync(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Failed to fetch user",
+			"details": err.Error(),
+		})
+	}
+
+	valid, err := h.GitHubService.ValidateToken(body.AccessToken)
+	if err != nil || !valid {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":   "Could not validate github token",
 			"details": err.Error(),
 		})
 	}
