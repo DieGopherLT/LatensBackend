@@ -25,4 +25,4 @@
 
 # Go build Binaries
 api
-!cmd/api
+.serena/

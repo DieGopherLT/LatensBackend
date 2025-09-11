@@ -9,13 +9,25 @@ import (
 
 func setupRoutes(app *fiber.App, db *mongo.Database) *fiber.App {
 
+	// Repositories
 	userRepo := repository.NewUserRepository(db)
+
+	// Handlers
 	userHandler := controller.NewUserHandler(userRepo)
+	authHandler := controller.NewAuthHandler(userRepo)
 
+	// Versions
 	v1 := app.Group("/api/v1")
-	users := v1.Group("/users")
 
+	// Groups
+	users := v1.Group("/users")
+	auth := v1.Group("/auth")
+
+	// User routes
 	users.Post("/", userHandler.CreateUser)
+
+	// Auth routes
+	auth.Post("/sync", authHandler.Sync)
 
 	return app
 }

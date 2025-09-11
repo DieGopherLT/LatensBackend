@@ -11,6 +11,7 @@ import (
 	"github.com/DieGopherLT/mfc_backend/internal/config"
 	"github.com/DieGopherLT/mfc_backend/internal/database"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
@@ -34,6 +35,12 @@ func main() {
 	}()
 
 	app := fiber.New()
+	app.Use(logger.New(logger.Config{
+		Format:        "[${time}] ${status} - ${method} ${path}\n",
+		TimeFormat:    "02-Jan-2006 15:04:05",
+		TimeZone:      "Local",
+		DisableColors: false,
+	}))
 
 	setupRoutes(app, db)
 
