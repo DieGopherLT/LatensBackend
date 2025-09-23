@@ -82,3 +82,26 @@ Latens analiza proyectos "dormidos" y genera insights sobre:
 - Score de "profundidad del sueño" basado en métricas
 
 Este contexto informa las decisiones arquitectónicas hacia flexibilidad y capacidad de análisis retrospectivo.
+
+## Convenciones de Naming para GraphQL
+
+### Tipos de respuesta GraphQL
+- **Respuestas de API**: Sufijo `Response` (ej: `RepositoryMetadataResponse`, `SleepAnalysisResponse`)
+- **Entidades de dominio**: Sin sufijo (ej: `OwnedRepository`, `User`, `Repository`)
+
+### Ejemplo:
+```go
+// ✅ Correcto - Respuesta de GraphQL
+type OwnedRepositoriesResponse struct {
+    Data struct {
+        Viewer struct {
+            Repositories struct {
+                Nodes []OwnedRepository  // ✅ Entidad sin sufijo
+            }
+        }
+    }
+}
+
+// ❌ Incorrecto - No usar Summary para entidades
+type OwnedRepositorySummary struct { ... }
+```

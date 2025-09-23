@@ -26,4 +26,12 @@
 
 # Go build Binaries
 api
+
+# MCPs
 .serena/
+
+!CLAUDE.md
+!README.md
+!CHANGELOG.md
+
+*.md

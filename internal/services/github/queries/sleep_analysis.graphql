@@ -1,0 +1,116 @@
+query GetSleepAnalysisData($owner: String!, $name: String!, $since: DateTime!) {
+  repository(owner: $owner, name: $name) {
+    # Default branch for commits analysis
+    defaultBranchRef {
+      name
+      
+      # Recent commits for temporal analysis (last 50 for performance)
+      target {
+        ... on Commit {
+          history(first: 50, since: $since) {
+            edges {
+              node {
+                oid
+                message
+                committedDate
+                author {
+                  name
+                  email
+                }
+                # Change statistics for activity assessment
+                additions
+                deletions
+              }
+            }
+            totalCount
+          }
+        }
+      }
+    }
+    
+    # Branch analysis for active work detection
+    refs(refPrefix: "refs/heads/", first: 100, orderBy: {field: TAG_COMMIT_DATE, direction: DESC}) {
+      edges {
+        node {
+          name
+          target {
+            ... on Commit {
+              committedDate
+              oid
+            }
+          }
+        }
+      }
+      totalCount
+    }
+    
+    # Context files analysis - README for project understanding
+    readme: object(expression: "HEAD:README.md") {
+      ... on Blob {
+        text
+      }
+    }
+    
+    # Language-specific configuration files using aliases
+    packageJson: object(expression: "HEAD:package.json") {
+      ... on Blob {
+        text
+      }
+    }
+    
+    goMod: object(expression: "HEAD:go.mod") {
+      ... on Blob {
+        text
+      }
+    }
+    
+    requirements: object(expression: "HEAD:requirements.txt") {
+      ... on Blob {
+        text
+      }
+    }
+    
+    gemfile: object(expression: "HEAD:Gemfile") {
+      ... on Blob {
+        text
+      }
+    }
+    
+    cargoToml: object(expression: "HEAD:Cargo.toml") {
+      ... on Blob {
+        text
+      }
+    }
+    
+    pomXml: object(expression: "HEAD:pom.xml") {
+      ... on Blob {
+        text
+      }
+    }
+    
+    # Community activity indicators
+    issues(states: OPEN) {
+      totalCount
+    }
+    
+    pullRequests(states: OPEN) {
+      totalCount
+    }
+    
+    # Latest release information if exists
+    latestRelease {
+      name
+      tagName
+      publishedAt
+      isPrerelease
+    }
+  }
+  
+  # Rate limiting information for API management
+  rateLimit {
+    limit
+    cost
+    remaining
+    resetAt
+  }
+}

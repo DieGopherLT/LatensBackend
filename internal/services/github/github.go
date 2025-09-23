@@ -5,15 +5,26 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/DieGopherLT/mfc_backend/pkg/graphql"
 )
 
-const GITHUB_PING_ENDPOINT = "https://api.github.com/octocat"
+const (
+	GITHUB_PING_ENDPOINT = "https://api.github.com/octocat"
+	GITHUB_GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
+)
 
 type GithubService struct {
+	gqlClient *graphql.Client
 }
 
-func NewGithubService() *GithubService {
-	return &GithubService{}
+// NewGithubServiceWithToken creates a new GitHub service with authenticated GraphQL client
+func NewGithubServiceWithToken(token string) *GithubService {
+	gqlClient := graphql.NewAuthenticatedClient(GITHUB_GRAPHQL_ENDPOINT, token)
+
+	return &GithubService{
+		gqlClient: gqlClient,
+	}
 }
 
 func (s *GithubService) ValidateToken(token string) (bool, error) {
@@ -40,4 +51,55 @@ func (s *GithubService) ValidateToken(token string) (bool, error) {
 	return true, nil
 }
 
-func (s *GithubService) SyncRepositories(ctx context.Context, token, userID string) {}
+// SyncRepositories fetches owned repositories for the authenticated user (basic tier)
+// This method is an alias for GetOwnedRepositories for backwards compatibility
+func (s *GithubService) SyncRepositories(ctx context.Context, first int, after *string) (*OwnedRepositoriesResponse, error) {
+	return s.GetOwnedRepositories(ctx, first, after)
+}
+
+// GetRepositoryMetadata fetches essential repository metadata for database storage
+func (s *GithubService) GetRepositoryMetadata(ctx context.Context, owner, name string) (*RepositoryMetadataResponse, error) {
+	if s.gqlClient == nil {
+		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
+	}
+
+	variables := map[string]any{
+		"owner": owner,
+		"name":  name,
+	}
+
+	return graphql.ExecuteQuery[RepositoryMetadataResponse](s.gqlClient, ctx, RepositoryMetadataQuery, variables)
+}
+
+// AnalyzeRepositorySleep fetches data for sleep score calculation
+func (s *GithubService) AnalyzeRepositorySleep(ctx context.Context, owner, name string, since time.Time) (*SleepAnalysisResponse, error) {
+	if s.gqlClient == nil {
+		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
+	}
+
+	variables := map[string]any{
+		"owner": owner,
+		"name":  name,
+		"since": since.Format(time.RFC3339),
+	}
+
+	return graphql.ExecuteQuery[SleepAnalysisResponse](s.gqlClient, ctx, SleepAnalysisQuery, variables)
+}
+
+// GetOwnedRepositories fetches only repositories owned by the authenticated user (basic tier)
+func (s *GithubService) GetOwnedRepositories(ctx context.Context, first int, after *string) (*OwnedRepositoriesResponse, error) {
+	if s.gqlClient == nil {
+		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
+	}
+
+	variables := map[string]any{
+		"first": first,
+	}
+
+	// Add cursor for pagination if provided
+	if after != nil {
+		variables["after"] = *after
+	}
+
+	return graphql.ExecuteQuery[OwnedRepositoriesResponse](s.gqlClient, ctx, OwnedRepositoriesQuery, variables)
+}

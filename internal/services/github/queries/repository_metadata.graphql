@@ -1,0 +1,53 @@
+query GetRepositoryMetadata($owner: String!, $name: String!) {
+  # Main repository metadata for database storage
+  repository(owner: $owner, name: $name) {
+    # Basic repository information
+    name
+    description
+    primaryLanguage {
+      name
+    }
+    
+    # Default branch reference
+    defaultBranchRef {
+      name
+    }
+    
+    # Temporal data for sleep analysis
+    createdAt
+    updatedAt
+    pushedAt
+    
+    # Repository state flags
+    isArchived
+    isPrivate
+    isFork
+    
+    # Owner information
+    owner {
+      login
+      avatarUrl
+      __typename  # Will be either "User" or "Organization"
+    }
+    
+    # Repository metrics
+    stargazerCount
+    forkCount
+    diskUsage
+    
+    # URLs and licensing
+    url
+    licenseInfo {
+      name
+      spdxId
+    }
+  }
+  
+  # Rate limiting information for API management
+  rateLimit {
+    limit
+    cost
+    remaining
+    resetAt
+  }
+}

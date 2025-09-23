@@ -1,0 +1,116 @@
+query GetOwnedRepositories($first: Int!, $after: String) {
+  # Get only repositories owned by authenticated user (basic tier)
+  viewer {
+    login
+
+    # Only owned repositories (no collaborations or organizations)
+    repositories(
+      first: $first
+      after: $after
+      orderBy: {field: PUSHED_AT, direction: DESC}
+      ownerAffiliations: [OWNER]
+      isFork: false  # Exclude forks for cleaner personal repos list
+    ) {
+      # Pagination information
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+
+      totalCount
+
+      # Repository nodes with essential dashboard information
+      nodes {
+        # Basic identification
+        name
+        nameWithOwner
+        url
+
+        # Repository metadata
+        description
+        primaryLanguage {
+          name
+          color
+        }
+
+        # Default branch for sleep analysis
+        defaultBranchRef {
+          name
+        }
+
+        # Repository state flags for filtering
+        isPrivate
+        isArchived
+        isFork
+        isDisabled
+        isEmpty
+
+        # Critical dates for sleep score calculation
+        createdAt
+        updatedAt
+        pushedAt
+
+        # Owner is always the authenticated user for owned repos
+        # Removed owner field to reduce complexity
+
+        # Metrics for dashboard display
+        stargazerCount
+        forkCount
+        diskUsage
+
+        # Recent activity indicators (for quick sleep assessment)
+        defaultBranchRef {
+          name
+          target {
+            ... on Commit {
+              # Latest commit info for sleep calculation
+              oid
+              committedDate
+              message
+              author {
+                name
+              }
+            }
+          }
+        }
+
+        # Activity metrics for sleep score (simplified for individual repos)
+        issues(states: OPEN) {
+          totalCount
+        }
+
+        pullRequests(states: OPEN) {
+          totalCount
+        }
+
+        # Repository topics (reduced for basic tier)
+        repositoryTopics(first: 5) {
+          nodes {
+            topic {
+              name
+            }
+          }
+        }
+
+        # License information
+        licenseInfo {
+          name
+          spdxId
+        }
+
+        # Primary language only (sufficient for personal repos)
+        # Full language stats available in premium tier
+      }
+    }
+  }
+
+  # Rate limiting information for API management
+  rateLimit {
+    limit
+    cost
+    remaining
+    resetAt
+  }
+}

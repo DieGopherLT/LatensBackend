@@ -1,0 +1,127 @@
+query GetUserRepositories($first: Int!, $after: String) {
+  # Get repositories for authenticated user (viewer)
+  viewer {
+    login
+
+    # User repositories with pagination
+    repositories(
+      first: $first
+      after: $after
+      orderBy: {field: PUSHED_AT, direction: DESC}
+      ownerAffiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]
+    ) {
+      # Pagination information
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+
+      totalCount
+
+      # Repository nodes with essential dashboard information
+      nodes {
+        # Basic identification
+        name
+        nameWithOwner
+        url
+
+        # Repository metadata
+        description
+        primaryLanguage {
+          name
+          color
+        }
+
+        # Default branch for sleep analysis
+        defaultBranchRef {
+          name
+        }
+
+        # Repository state flags for filtering
+        isPrivate
+        isArchived
+        isFork
+        isDisabled
+        isEmpty
+
+        # Critical dates for sleep score calculation
+        createdAt
+        updatedAt
+        pushedAt
+
+        # Owner information (important for organization repos)
+        owner {
+          login
+          avatarUrl
+          __typename  # User or Organization
+        }
+
+        # Metrics for dashboard display
+        stargazerCount
+        forkCount
+        diskUsage
+
+        # Recent activity indicators (for quick sleep assessment)
+        defaultBranchRef {
+          name
+          target {
+            ... on Commit {
+              # Latest commit info for sleep calculation
+              oid
+              committedDate
+              message
+              author {
+                name
+              }
+            }
+          }
+        }
+
+        # Quick activity metrics (counts only for performance)
+        issues(states: OPEN) {
+          totalCount
+        }
+
+        pullRequests(states: OPEN) {
+          totalCount
+        }
+
+        # Repository topics for categorization
+        repositoryTopics(first: 10) {
+          nodes {
+            topic {
+              name
+            }
+          }
+        }
+
+        # License information
+        licenseInfo {
+          name
+          spdxId
+        }
+
+        # Language statistics for additional context
+        languages(first: 5, orderBy: {field: SIZE, direction: DESC}) {
+          edges {
+            size
+            node {
+              name
+              color
+            }
+          }
+        }
+      }
+    }
+  }
+
+  # Rate limiting information for API management
+  rateLimit {
+    limit
+    cost
+    remaining
+    resetAt
+  }
+}
