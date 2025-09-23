@@ -51,12 +51,6 @@ func (s *GithubService) ValidateToken(token string) (bool, error) {
 	return true, nil
 }
 
-// SyncRepositories fetches owned repositories for the authenticated user (basic tier)
-// This method is an alias for GetOwnedRepositories for backwards compatibility
-func (s *GithubService) SyncRepositories(ctx context.Context, first int, after *string) (*OwnedRepositoriesResponse, error) {
-	return s.GetOwnedRepositories(ctx, first, after)
-}
-
 // GetRepositoryMetadata fetches essential repository metadata for database storage
 func (s *GithubService) GetRepositoryMetadata(ctx context.Context, owner, name string) (*RepositoryMetadataResponse, error) {
 	if s.gqlClient == nil {
@@ -71,8 +65,8 @@ func (s *GithubService) GetRepositoryMetadata(ctx context.Context, owner, name s
 	return graphql.ExecuteQuery[RepositoryMetadataResponse](s.gqlClient, ctx, RepositoryMetadataQuery, variables)
 }
 
-// AnalyzeRepositorySleep fetches data for sleep score calculation
-func (s *GithubService) AnalyzeRepositorySleep(ctx context.Context, owner, name string, since time.Time) (*SleepAnalysisResponse, error) {
+// GetInformationForAwakening fetches data for sleep score calculation
+func (s *GithubService) GetInformationForAwakening(ctx context.Context, owner, name string, since time.Time) (*SleepAnalysisResponse, error) {
 	if s.gqlClient == nil {
 		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
 	}
@@ -86,8 +80,8 @@ func (s *GithubService) AnalyzeRepositorySleep(ctx context.Context, owner, name 
 	return graphql.ExecuteQuery[SleepAnalysisResponse](s.gqlClient, ctx, SleepAnalysisQuery, variables)
 }
 
-// GetOwnedRepositories fetches only repositories owned by the authenticated user (basic tier)
-func (s *GithubService) GetOwnedRepositories(ctx context.Context, first int, after *string) (*OwnedRepositoriesResponse, error) {
+// GetUserRepositories fetches only repositories owned by the authenticated user (basic tier)
+func (s *GithubService) GetUserRepositories(ctx context.Context, first int, after *string) (*OwnedRepositoriesResponse, error) {
 	if s.gqlClient == nil {
 		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
 	}
