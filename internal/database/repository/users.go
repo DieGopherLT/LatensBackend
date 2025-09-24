@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/DieGopherLT/mfc_backend/internal/database/models"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
@@ -37,8 +38,67 @@ func (r *MongoUserRepository) FindByGitHubID(ctx context.Context, githubID strin
 	return &user, nil
 }
 
+func (r *MongoUserRepository) FindByID(ctx context.Context, id string) (*models.User, error) {
+	var user models.User
+
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	condition := map[string]any{"_id": objectID}
+	err = r.collection.FindOne(ctx, condition).Decode(&user)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *MongoUserRepository) FindAll(ctx context.Context) ([]*models.User, error) {
+	cursor, err := r.collection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var users []*models.User
+	for cursor.Next(ctx) {
+		var user models.User
+		if err := cursor.Decode(&user); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (r *MongoUserRepository) Update(ctx context.Context, id string, update map[string]any) error {
-	condition := map[string]any{"_id": id}
-	_, err := r.collection.UpdateOne(ctx, condition, map[string]any{"$set": update})
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	condition := map[string]any{"_id": objectID}
+	_, err = r.collection.UpdateOne(ctx, condition, map[string]any{"$set": update})
+	return err
+}
+
+func (r *MongoUserRepository) Delete(ctx context.Context, id string) error {
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	condition := map[string]any{"_id": objectID}
+	_, err = r.collection.DeleteOne(ctx, condition)
 	return err
 }

@@ -2,19 +2,19 @@ package controller
 
 import (
 	"github.com/DieGopherLT/mfc_backend/internal/database/models"
-	"github.com/DieGopherLT/mfc_backend/internal/database/repository"
 	"github.com/DieGopherLT/mfc_backend/internal/services/github"
+	"github.com/DieGopherLT/mfc_backend/internal/services/users"
 	"github.com/gofiber/fiber/v2"
 )
 
 type AuthHandler struct {
-	UserRepo repository.UserRepository
+	UserService   *users.UserService
 	GitHubService *github.GithubService
 }
 
-func NewAuthHandler(userRepo repository.UserRepository, githubService *github.GithubService) *AuthHandler {
+func NewAuthHandler(userService *users.UserService, githubService *github.GithubService) *AuthHandler {
 	return &AuthHandler{
-		UserRepo: userRepo,
+		UserService:   userService,
 		GitHubService: githubService,
 	}
 }
@@ -37,7 +37,7 @@ func (h *AuthHandler) Sync(c *fiber.Ctx) error {
 	}
 
 	// Check if user exists
-	user, err := h.UserRepo.FindByGitHubID(c.Context(), body.GithubId)
+	user, err := h.UserService.GetUserByGitHubID(c.Context(), body.GithubId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Failed to fetch user",
@@ -62,7 +62,7 @@ func (h *AuthHandler) Sync(c *fiber.Ctx) error {
 			AccessToken: body.AccessToken,
 			AvatarURL:   body.AvatarURL,
 		}
-		if err := h.UserRepo.Create(c.Context(), user); err != nil {
+		if err := h.UserService.CreateUser(c.Context(), user); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error":   "Failed to create user",
 				"details": err.Error(),
@@ -75,7 +75,7 @@ func (h *AuthHandler) Sync(c *fiber.Ctx) error {
 		})
 	}
 
-	err = h.UserRepo.Update(c.Context(), user.ID, map[string]any{
+	err = h.UserService.UpdateUser(c.Context(), user.ID, map[string]any{
 		"access_token": body.AccessToken,
 	})
 	if err != nil {
