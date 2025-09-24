@@ -4,6 +4,7 @@ import (
 	"github.com/DieGopherLT/mfc_backend/internal/database/models"
 	"github.com/DieGopherLT/mfc_backend/internal/services/github"
 	"github.com/DieGopherLT/mfc_backend/internal/services/repos"
+	"github.com/DieGopherLT/mfc_backend/internal/services/token"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )
@@ -18,19 +19,33 @@ func NewReposHandler(reposService *repos.ReposService, githubService *github.Git
 	return &ReposHandler{reposService: reposService, githubService: githubService}
 }
 
-func (h *ReposHandler) SyncRepositories(c *fiber.Ctx) error {
-	return nil
+func (h *ReposHandler) GetRepos(c *fiber.Ctx) error {
+	repos, err := h.reposService.GetAllRepositories(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch repositories. Please try later.",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"repos": repos,
+	})
 }
 
-func (h *ReposHandler) startSyncJob(c *fiber.Ctx) {
+func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
+	user := c.Locals("user").(token.Payload)	
+	
 	var repos []*models.GitHubRepository
 	var after *string
 	first := 25
 
 	for {
-		response, err := h.githubService.GetUserRepositories(c.Context(), body.AccessToken, first, after)
+		response, err := h.githubService.GetUserRepositories(c.Context(), user.GitHubAccessToken, first, after)
 		if err != nil {
-			break
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to sync repositories from GitHub. Please try later",
+				"details": err.Error(),
+			})
 		}
 
 		after = &response.Data.Viewer.Repositories.PageInfo.EndCursor
@@ -70,6 +85,17 @@ func (h *ReposHandler) startSyncJob(c *fiber.Ctx) {
 	}
 
 	if len(repos) > 0 {
-		_ = h.reposService.CreateManyRepositories(c.Context(), repos)
+		err := h.reposService.CreateManyRepositories(c.Context(), repos)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to sync repositories. Please try later.",
+			})
+		}
 	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Repositories synced successfully.",
+		"count":   len(repos),
+		"repos":   repos,
+	})	
 }

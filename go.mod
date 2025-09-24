@@ -2,6 +2,8 @@ module github.com/DieGopherLT/mfc_backend
 
 go 1.25.0
 
+require github.com/samber/lo v1.51.0
+
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/coder/websocket v1.8.13 // indirect
@@ -10,6 +12,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.27.0 // indirect
 	github.com/gofiber/fiber/v2 v2.52.9 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hasura/go-graphql-client v0.14.4 // indirect
@@ -21,7 +24,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/openai/openai-go/v2 v2.3.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/samber/lo v1.51.0
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

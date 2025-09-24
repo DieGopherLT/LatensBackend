@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/DieGopherLT/mfc_backend/internal/database/models"
 	"github.com/DieGopherLT/mfc_backend/internal/services/github"
+	"github.com/DieGopherLT/mfc_backend/internal/services/token"
 	"github.com/DieGopherLT/mfc_backend/internal/services/users"
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,7 +20,7 @@ func NewAuthHandler(userService *users.UserService, githubService *github.Github
 	}
 }
 
-func (h *AuthHandler) Sync(c *fiber.Ctx) error {
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var body struct {
 		GithubId    string `json:"github_id"`
 		Username    string `json:"username"`
@@ -69,9 +70,25 @@ func (h *AuthHandler) Sync(c *fiber.Ctx) error {
 			})
 		}
 
+		payload := token.Payload{
+			UserID:            user.ID,
+			Username:          user.Username,
+			Email:             user.Email,
+			GitHubAccessToken: user.AccessToken,
+		}
+
+		jwtToken, err := token.Sign(payload)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   "Failed to generate token",
+				"details": err.Error(),
+			})
+		}
+
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"message": "User created successfully",
 			"user":    user,
+			"token":   jwtToken,
 		})
 	}
 

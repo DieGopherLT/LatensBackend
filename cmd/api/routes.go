@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/DieGopherLT/mfc_backend/internal/controller"
 	"github.com/DieGopherLT/mfc_backend/internal/database/repository"
+	"github.com/DieGopherLT/mfc_backend/internal/middleware"
 	"github.com/DieGopherLT/mfc_backend/internal/services/github"
 	"github.com/DieGopherLT/mfc_backend/internal/services/repos"
 	"github.com/DieGopherLT/mfc_backend/internal/services/users"
@@ -42,10 +43,11 @@ func setupRoutes(app *fiber.App, db *mongo.Database) *fiber.App {
 	users.Delete("/:id", userHandler.DeleteUser)
 
 	// Repos routes
-	repos.Post("/sync", reposHandler.SyncRepositories)
+	repos.Get("/", middleware.Guard(), reposHandler.GetRepos)
+	repos.Post("/sync", middleware.Guard(), reposHandler.SyncRepos)
 
 	// Auth routes
-	auth.Post("/sync", authHandler.Sync)
+	auth.Post("/login", authHandler.Login)
 
 	return app
 }
