@@ -18,6 +18,13 @@ type GithubService struct {
 	gqlClient *graphql.Client
 }
 
+// NewGithubService creates a new GitHub service without GraphQL client
+func NewGithubService() *GithubService {
+	return &GithubService{
+		gqlClient: nil,
+	}
+}
+
 // NewGithubServiceWithToken creates a new GitHub service with authenticated GraphQL client
 func NewGithubServiceWithToken(token string) *GithubService {
 	gqlClient := graphql.NewAuthenticatedClient(GITHUB_GRAPHQL_ENDPOINT, token)
@@ -52,24 +59,20 @@ func (s *GithubService) ValidateToken(token string) (bool, error) {
 }
 
 // GetRepositoryMetadata fetches essential repository metadata for database storage
-func (s *GithubService) GetRepositoryMetadata(ctx context.Context, owner, name string) (*RepositoryMetadataResponse, error) {
-	if s.gqlClient == nil {
-		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
-	}
+func (s *GithubService) GetRepositoryMetadata(ctx context.Context, token, owner, name string) (*RepositoryMetadataResponse, error) {
+	gqlClient := graphql.NewAuthenticatedClient(GITHUB_GRAPHQL_ENDPOINT, token)
 
 	variables := map[string]any{
 		"owner": owner,
 		"name":  name,
 	}
 
-	return graphql.ExecuteQuery[RepositoryMetadataResponse](s.gqlClient, ctx, RepositoryMetadataQuery, variables)
+	return graphql.ExecuteQuery[RepositoryMetadataResponse](gqlClient, ctx, RepositoryMetadataQuery, variables)
 }
 
 // GetInformationForAwakening fetches data for sleep score calculation
-func (s *GithubService) GetInformationForAwakening(ctx context.Context, owner, name string, since time.Time) (*SleepAnalysisResponse, error) {
-	if s.gqlClient == nil {
-		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
-	}
+func (s *GithubService) GetInformationForAwakening(ctx context.Context, token, owner, name string, since time.Time) (*SleepAnalysisResponse, error) {
+	gqlClient := graphql.NewAuthenticatedClient(GITHUB_GRAPHQL_ENDPOINT, token)
 
 	variables := map[string]any{
 		"owner": owner,
@@ -77,14 +80,12 @@ func (s *GithubService) GetInformationForAwakening(ctx context.Context, owner, n
 		"since": since.Format(time.RFC3339),
 	}
 
-	return graphql.ExecuteQuery[SleepAnalysisResponse](s.gqlClient, ctx, SleepAnalysisQuery, variables)
+	return graphql.ExecuteQuery[SleepAnalysisResponse](gqlClient, ctx, SleepAnalysisQuery, variables)
 }
 
 // GetUserRepositories fetches only repositories owned by the authenticated user (basic tier)
-func (s *GithubService) GetUserRepositories(ctx context.Context, first int, after *string) (*OwnedRepositoriesResponse, error) {
-	if s.gqlClient == nil {
-		return nil, fmt.Errorf("GraphQL client not initialized. Use NewGithubServiceWithToken")
-	}
+func (s *GithubService) GetUserRepositories(ctx context.Context, token string, first int, after *string) (*OwnedRepositoriesResponse, error) {
+	gqlClient := graphql.NewAuthenticatedClient(GITHUB_GRAPHQL_ENDPOINT, token)
 
 	variables := map[string]any{
 		"first": first,
@@ -95,5 +96,5 @@ func (s *GithubService) GetUserRepositories(ctx context.Context, first int, afte
 		variables["after"] = *after
 	}
 
-	return graphql.ExecuteQuery[OwnedRepositoriesResponse](s.gqlClient, ctx, OwnedRepositoriesQuery, variables)
+	return graphql.ExecuteQuery[OwnedRepositoriesResponse](gqlClient, ctx, OwnedRepositoriesQuery, variables)
 }

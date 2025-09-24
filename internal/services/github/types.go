@@ -165,6 +165,7 @@ type OwnedRepositoriesResponse struct {
 // OwnedRepository represents essential information for user-owned repositories (basic tier)
 type OwnedRepository struct {
 	// Basic identification
+	ID            string `json:"id"`
 	Name          string `json:"name"`
 	NameWithOwner string `json:"nameWithOwner"`
 	URL           string `json:"url"`

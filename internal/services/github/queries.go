@@ -226,6 +226,7 @@ const (
 					# Repository nodes with essential dashboard information
 					nodes {
 						# Basic identification
+						id
 						name
 						nameWithOwner
 						url
