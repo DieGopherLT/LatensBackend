@@ -3,7 +3,7 @@ package middleware
 import (
 	"strings"
 
-	"github.com/DieGopherLT/mfc_backend/internal/services/token"
+	"github.com/DieGopherLT/LatensBackend/internal/services/token"
 	"github.com/gofiber/fiber/v2"
 )
 

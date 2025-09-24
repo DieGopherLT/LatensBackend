@@ -3,8 +3,8 @@ package repos
 import (
 	"context"
 
-	"github.com/DieGopherLT/mfc_backend/internal/database/models"
-	"github.com/DieGopherLT/mfc_backend/internal/database/repository"
+	"github.com/DieGopherLT/LatensBackend/internal/database/models"
+	"github.com/DieGopherLT/LatensBackend/internal/database/repository"
 )
 
 type ReposService struct {

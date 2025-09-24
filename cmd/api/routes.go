@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/DieGopherLT/mfc_backend/internal/controller"
-	"github.com/DieGopherLT/mfc_backend/internal/database/repository"
-	"github.com/DieGopherLT/mfc_backend/internal/middleware"
-	"github.com/DieGopherLT/mfc_backend/internal/services/github"
-	"github.com/DieGopherLT/mfc_backend/internal/services/repos"
-	"github.com/DieGopherLT/mfc_backend/internal/services/users"
+	"github.com/DieGopherLT/LatensBackend/internal/controller"
+	"github.com/DieGopherLT/LatensBackend/internal/database/repository"
+	"github.com/DieGopherLT/LatensBackend/internal/middleware"
+	"github.com/DieGopherLT/LatensBackend/internal/services/github"
+	"github.com/DieGopherLT/LatensBackend/internal/services/repos"
+	"github.com/DieGopherLT/LatensBackend/internal/services/users"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )

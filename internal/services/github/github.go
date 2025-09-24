@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/DieGopherLT/mfc_backend/pkg/graphql"
+	"github.com/DieGopherLT/LatensBackend/pkg/graphql"
 )
 
 const (

@@ -1,6 +1,6 @@
 package github
 
-import "github.com/DieGopherLT/mfc_backend/pkg/graphql"
+import "github.com/DieGopherLT/LatensBackend/pkg/graphql"
 
 const (
 	// RepositoryMetadataQuery fetches essential repository metadata for database storage

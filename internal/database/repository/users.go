@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/DieGopherLT/mfc_backend/internal/database/models"
+	"github.com/DieGopherLT/LatensBackend/internal/database/models"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )

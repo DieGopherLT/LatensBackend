@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"github.com/DieGopherLT/mfc_backend/internal/database/models"
-	"github.com/DieGopherLT/mfc_backend/internal/services/github"
-	"github.com/DieGopherLT/mfc_backend/internal/services/token"
-	"github.com/DieGopherLT/mfc_backend/internal/services/users"
+	"github.com/DieGopherLT/LatensBackend/internal/database/models"
+	"github.com/DieGopherLT/LatensBackend/internal/services/github"
+	"github.com/DieGopherLT/LatensBackend/internal/services/token"
+	"github.com/DieGopherLT/LatensBackend/internal/services/users"
 	"github.com/gofiber/fiber/v2"
 )
 

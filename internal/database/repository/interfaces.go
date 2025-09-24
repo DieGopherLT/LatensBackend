@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/DieGopherLT/mfc_backend/internal/database/models"
+	"github.com/DieGopherLT/LatensBackend/internal/database/models"
 )
 
 type UserRepository interface {

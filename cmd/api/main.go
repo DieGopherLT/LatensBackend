@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DieGopherLT/mfc_backend/internal/config"
-	"github.com/DieGopherLT/mfc_backend/internal/database"
+	"github.com/DieGopherLT/LatensBackend/internal/config"
+	"github.com/DieGopherLT/LatensBackend/internal/database"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )

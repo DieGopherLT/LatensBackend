@@ -27,7 +27,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/DieGopherLT/mfc_backend/internal/database/models"
+	"github.com/DieGopherLT/LatensBackend/internal/database/models"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -117,8 +117,8 @@ const serviceTemplate = `package {{.KebabCase}}
 import (
 	"context"
 
-	"github.com/DieGopherLT/mfc_backend/internal/database/models"
-	"github.com/DieGopherLT/mfc_backend/internal/database/repository"
+	"github.com/DieGopherLT/LatensBackend/internal/database/models"
+	"github.com/DieGopherLT/LatensBackend/internal/database/repository"
 )
 
 type {{.PascalCase}}Service struct {
@@ -153,8 +153,8 @@ func (s *{{.PascalCase}}Service) Delete{{.PascalCase}}(ctx context.Context, id s
 const controllerTemplate = `package controller
 
 import (
-	"github.com/DieGopherLT/mfc_backend/internal/database/models"
-	"github.com/DieGopherLT/mfc_backend/internal/services/{{.KebabCase}}"
+	"github.com/DieGopherLT/LatensBackend/internal/database/models"
+	"github.com/DieGopherLT/LatensBackend/internal/services/{{.KebabCase}}"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -401,7 +401,7 @@ func generateRoutesSnippet(data ResourceData) {
 	fmt.Printf("\n📋 Routes snippet for cmd/api/routes.go:\n")
 	fmt.Printf("```go\n")
 	fmt.Printf("// Add to imports:\n")
-	fmt.Printf("\"github.com/DieGopherLT/mfc_backend/internal/services/%s\"\n\n", data.KebabCase)
+	fmt.Printf("\"github.com/DieGopherLT/LatensBackend/internal/services/%s\"\n\n", data.KebabCase)
 
 	fmt.Printf("// Add to setupRoutes function:\n")
 	fmt.Printf("%sRepo := repository.New%sRepository(db)\n", data.CamelCase, data.PascalCase)

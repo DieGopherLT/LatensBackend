@@ -1,4 +1,4 @@
-module github.com/DieGopherLT/mfc_backend
+module github.com/DieGopherLT/LatensBackend
 
 go 1.25.0
 
