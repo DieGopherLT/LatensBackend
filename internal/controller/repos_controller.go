@@ -5,6 +5,7 @@ import (
 	"github.com/DieGopherLT/LatensBackend/internal/services/github"
 	"github.com/DieGopherLT/LatensBackend/internal/services/repos"
 	"github.com/DieGopherLT/LatensBackend/internal/services/token"
+	"github.com/DieGopherLT/LatensBackend/internal/services/users"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )
@@ -13,10 +14,11 @@ import (
 type ReposHandler struct {
 	reposService  *repos.ReposService
 	githubService *github.GithubService
+	userService   *users.UserService
 }
 
-func NewReposHandler(reposService *repos.ReposService, githubService *github.GithubService) *ReposHandler {
-	return &ReposHandler{reposService: reposService, githubService: githubService}
+func NewReposHandler(reposService *repos.ReposService, githubService *github.GithubService, userService *users.UserService) *ReposHandler {
+	return &ReposHandler{reposService: reposService, githubService: githubService, userService: userService}
 }
 
 func (h *ReposHandler) GetRepos(c *fiber.Ctx) error {
@@ -39,8 +41,15 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 	var after *string
 	first := 25
 
+	userGithubToken, err := h.userService.GetUserGitHubToken(c.Context(), user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch user GitHub token. Please try later.",
+		})
+	}
+
 	for {
-		response, err := h.githubService.GetUserRepositories(c.Context(), user.GitHubAccessToken, first, after)
+		response, err := h.githubService.GetUserRepositories(c.Context(), userGithubToken, first, after)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to sync repositories from GitHub. Please try later",

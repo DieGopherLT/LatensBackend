@@ -36,7 +36,7 @@ func main() {
 
 	app := fiber.New()
 	app.Use(logger.New(logger.Config{
-		Format:        "[${time}] ${status} - ${method} ${path}\n",
+		Format:        "[${time}] ${status} - ${method} ${path}\n${error}",
 		TimeFormat:    "02-Jan-2006 15:04:05",
 		TimeZone:      "Local",
 		DisableColors: false,

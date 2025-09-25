@@ -27,6 +27,17 @@ func (s *UserService) GetUserByGitHubID(ctx context.Context, githubID string) (*
 	return s.repo.FindByGitHubID(ctx, githubID)
 }
 
+func (s *UserService) GetUserGitHubToken(ctx context.Context, id string) (string, error) {
+	user, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return "", err
+	}
+	if user == nil {
+		return "", nil
+	}
+	return user.AccessToken, nil
+}
+
 func (s *UserService) GetAllUsers(ctx context.Context) ([]*models.User, error) {
 	return s.repo.FindAll(ctx)
 }

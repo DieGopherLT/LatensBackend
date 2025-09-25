@@ -1,8 +1,10 @@
 package models
 
+import "go.mongodb.org/mongo-driver/v2/bson"
+
 // User stores personal and github related information about a user
 type User struct {
-	ID          string `bson:"_id,omitempty" json:"id,omitempty"`
+	ID          bson.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	GithubID    string `bson:"github_id" json:"github_id"`
 	Username    string `bson:"username" json:"username"`
 	Name        string `bson:"name" json:"name"`
@@ -12,7 +14,7 @@ type User struct {
 }
 
 type GitHubRepository struct {
-	ID                string          `bson:"_id,omitempty" json:"id,omitempty"`
+	ID                bson.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	GitHubID          string          `bson:"github_id" json:"github_id"`
 	Name              string          `bson:"name" json:"name"`
 	FullName          string          `bson:"full_name" json:"full_name"`

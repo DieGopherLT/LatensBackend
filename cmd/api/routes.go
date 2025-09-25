@@ -25,7 +25,7 @@ func setupRoutes(app *fiber.App, db *mongo.Database) *fiber.App {
 	// Handlers
 	userHandler := controller.NewUserHandler(userService)
 	authHandler := controller.NewAuthHandler(userService, githubService)
-	reposHandler := controller.NewReposHandler(reposService, githubService)
+	reposHandler := controller.NewReposHandler(reposService, githubService, userService)
 
 	// Versions
 	v1 := app.Group("/api/v1")

@@ -13,6 +13,7 @@ type Config struct {
 	MongoDbURI  string `validate:"required"`
 	MongoDbName string `validate:"required"`
 	OpenAIKey   string `validate:"required"`
+	JWTSecret   string `validate:"required"`
 }
 
 var (
@@ -24,6 +25,7 @@ var (
 	MongoDbName = "MONGODB_NAME"
 	OpenAIKey   = "OPENAI_API_KEY"
 	PortKey     = "PORT"
+	JWTSecret   = "JWT_SECRET"
 )
 
 func New() (*Config, error) {
@@ -38,6 +40,7 @@ func New() (*Config, error) {
 		MongoDbName: os.Getenv(MongoDbName),
 		OpenAIKey:   os.Getenv(OpenAIKey),
 		Port:        os.Getenv(PortKey),
+		JWTSecret:   os.Getenv(JWTSecret),
 	}
 
 	validate := validator.New()

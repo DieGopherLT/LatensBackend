@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"log"
+
 	"github.com/DieGopherLT/LatensBackend/internal/database/models"
 	"github.com/DieGopherLT/LatensBackend/internal/services/github"
 	"github.com/DieGopherLT/LatensBackend/internal/services/token"
@@ -31,6 +33,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&body); err != nil {
+		log.Println("Error parsing login body:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Invalid request body",
 			"details": err.Error(),
@@ -40,6 +43,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	// Check if user exists
 	user, err := h.UserService.GetUserByGitHubID(c.Context(), body.GithubId)
 	if err != nil {
+		log.Println("Error fetching user by GitHub ID:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Failed to fetch user",
 			"details": err.Error(),
@@ -48,6 +52,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	valid, err := h.GitHubService.ValidateToken(body.AccessToken)
 	if err != nil || !valid {
+		log.Println("Error validating GitHub token:", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error":   "Could not validate github token",
 			"details": err.Error(),
@@ -64,6 +69,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 			AvatarURL:   body.AvatarURL,
 		}
 		if err := h.UserService.CreateUser(c.Context(), user); err != nil {
+			log.Println("Error creating user:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error":   "Failed to create user",
 				"details": err.Error(),
@@ -71,14 +77,13 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		}
 
 		payload := token.Payload{
-			UserID:            user.ID,
-			Username:          user.Username,
-			Email:             user.Email,
-			GitHubAccessToken: user.AccessToken,
+			UserID: user.ID.Hex(),
+			Email:  user.Email,
 		}
 
 		jwtToken, err := token.Sign(payload)
 		if err != nil {
+			log.Println("Error signing JWT token:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error":   "Failed to generate token",
 				"details": err.Error(),
@@ -92,12 +97,27 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	err = h.UserService.UpdateUser(c.Context(), user.ID, map[string]any{
+	err = h.UserService.UpdateUser(c.Context(), user.ID.Hex(), map[string]any{
 		"access_token": body.AccessToken,
 	})
 	if err != nil {
+		log.Println("Error updating user access token:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Failed to sync auth",
+			"details": err.Error(),
+		})
+	}
+
+	payload := token.Payload{
+		UserID: user.ID.Hex(),
+		Email:  user.Email,
+	}
+
+	jwtToken, err := token.Sign(payload)
+	if err != nil {
+		log.Println("Error signing JWT token:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   "Failed to generate token",
 			"details": err.Error(),
 		})
 	}
@@ -105,5 +125,6 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Auth synced successfully",
 		"user":    user,
+		"token":   jwtToken,
 	})
 }

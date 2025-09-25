@@ -9,17 +9,13 @@ import (
 
 type Payload struct {
 	UserID            string `json:"user_id"`
-	Username          string `json:"username"`
 	Email             string `json:"email"`
-	GitHubAccessToken string `json:"github_access_token"`
 }
 
 func Sign(payload Payload) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":             payload.UserID,
-		"username":            payload.Username,
 		"email":               payload.Email,
-		"github_access_token": payload.GitHubAccessToken,
 		"exp":                 time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 		"iat":                 time.Now().Unix(),
 	}
@@ -46,15 +42,11 @@ func Parse(tokenString string) (*Payload, error) {
 	}
 
 	userID, _ := claims["user_id"].(string)
-	username, _ := claims["username"].(string)
 	email, _ := claims["email"].(string)
-	githubToken, _ := claims["github_access_token"].(string)
 
 	payload := &Payload{
 		UserID:            userID,
-		Username:          username,
 		Email:             email,
-		GitHubAccessToken: githubToken,
 	}
 
 	return payload, nil
