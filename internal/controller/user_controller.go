@@ -16,7 +16,7 @@ func NewUserHandler(userService *users.UserService) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
-	var user models.User
+	var user models.UserDocument
 
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

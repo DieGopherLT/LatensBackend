@@ -2,8 +2,8 @@ package models
 
 import "go.mongodb.org/mongo-driver/v2/bson"
 
-// User stores personal and github related information about a user
-type User struct {
+// UserDocument stores personal and github related information about a user
+type UserDocument struct {
 	ID          bson.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	GithubID    string `bson:"github_id" json:"github_id"`
 	Username    string `bson:"username" json:"username"`
@@ -13,8 +13,9 @@ type User struct {
 	AccessToken string `bson:"access_token" json:"access_token"`
 }
 
-type GitHubRepository struct {
+type RepositoryDocument struct {
 	ID                bson.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	UserID            bson.ObjectID `bson:"user_id" json:"user_id"`
 	GitHubID          string          `bson:"github_id" json:"github_id"`
 	Name              string          `bson:"name" json:"name"`
 	FullName          string          `bson:"full_name" json:"full_name"`
@@ -33,15 +34,5 @@ type GitHubRepository struct {
 	PullRequestsCount int             `bson:"pull_requests_count" json:"pull_requests_count"`
 	PrimaryLanguage   PrimaryLanguage `bson:"primary_language" json:"primary_language"`
 	License           string          `bson:"license" json:"license"`
-}
-
-type DefaultBranch struct {
-	Name          string `bson:"name" json:"name"`
-	CommittedDate string `bson:"committed_date" json:"committed_date"`
-	Author        string `bson:"author" json:"author"`
-}
-
-type PrimaryLanguage struct {
-	Name  string `bson:"name" json:"name"`
-	Color string `bson:"color" json:"color"`
+	Metadata          RepositoryMetadata `bson:"metadata" json:"metadata"`
 }

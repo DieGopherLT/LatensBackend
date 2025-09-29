@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/DieGopherLT/LatensBackend/internal/database/models"
 	"github.com/DieGopherLT/LatensBackend/internal/services/github"
 	"github.com/DieGopherLT/LatensBackend/internal/services/repos"
@@ -40,7 +42,7 @@ func (h *ReposHandler) GetRepos(c *fiber.Ctx) error {
 func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 	user := c.Locals("user").(token.Payload)	
 	
-	var repos []*models.GitHubRepository
+	var repos []*models.RepositoryDocument
 	var after *string
 	first := 25
 
@@ -69,8 +71,9 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 		}
 
 		after = &response.Data.Viewer.Repositories.PageInfo.EndCursor
-		newRepos := lo.Map(response.Data.Viewer.Repositories.Nodes, func(repo github.OwnedRepository, _ int) *models.GitHubRepository {
-			return &models.GitHubRepository{
+		syncTime := time.Now()
+		newRepos := lo.Map(response.Data.Viewer.Repositories.Nodes, func(repo github.OwnedRepository, _ int) *models.RepositoryDocument {
+			return &models.RepositoryDocument{
 				GitHubID:    repo.ID,
 				UserID:      userID,
 				Name:        repo.Name,
@@ -96,6 +99,9 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 					Color: repo.PrimaryLanguage.Color,
 				},
 				License: repo.LicenseInfo.Name,
+				Metadata: models.RepositoryMetadata{
+					SyncedAt: syncTime,
+				},
 			}
 		})
 		repos = append(repos, newRepos...)

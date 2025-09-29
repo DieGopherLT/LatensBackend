@@ -18,13 +18,13 @@ func NewUserRepository(client *mongo.Database) *MongoUserRepository {
 	return &MongoUserRepository{collection: collection}
 }
 
-func (r *MongoUserRepository) Create(ctx context.Context, user *models.User) error {
+func (r *MongoUserRepository) Create(ctx context.Context, user *models.UserDocument) error {
 	_, err := r.collection.InsertOne(ctx, user)
 	return err
 }
 
-func (r *MongoUserRepository) FindByGitHubID(ctx context.Context, githubID string) (*models.User, error) {
-	var user models.User
+func (r *MongoUserRepository) FindByGitHubID(ctx context.Context, githubID string) (*models.UserDocument, error) {
+	var user models.UserDocument
 
 	condition := map[string]any{"github_id": githubID}
 	err := r.collection.FindOne(ctx, condition).Decode(&user)
@@ -38,8 +38,8 @@ func (r *MongoUserRepository) FindByGitHubID(ctx context.Context, githubID strin
 	return &user, nil
 }
 
-func (r *MongoUserRepository) FindByID(ctx context.Context, id string) (*models.User, error) {
-	var user models.User
+func (r *MongoUserRepository) FindByID(ctx context.Context, id string) (*models.UserDocument, error) {
+	var user models.UserDocument
 
 	objectID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
@@ -58,16 +58,16 @@ func (r *MongoUserRepository) FindByID(ctx context.Context, id string) (*models.
 	return &user, nil
 }
 
-func (r *MongoUserRepository) FindAll(ctx context.Context) ([]*models.User, error) {
+func (r *MongoUserRepository) FindAll(ctx context.Context) ([]*models.UserDocument, error) {
 	cursor, err := r.collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var users []*models.User
+	var users []*models.UserDocument
 	for cursor.Next(ctx) {
-		var user models.User
+		var user models.UserDocument
 		if err := cursor.Decode(&user); err != nil {
 			return nil, err
 		}

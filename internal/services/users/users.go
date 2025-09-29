@@ -15,15 +15,15 @@ func NewUserService(repo repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) CreateUser(ctx context.Context, user *models.User) error {
+func (s *UserService) CreateUser(ctx context.Context, user *models.UserDocument) error {
 	return s.repo.Create(ctx, user)
 }
 
-func (s *UserService) GetUserByID(ctx context.Context, id string) (*models.User, error) {
+func (s *UserService) GetUserByID(ctx context.Context, id string) (*models.UserDocument, error) {
 	return s.repo.FindByID(ctx, id)
 }
 
-func (s *UserService) GetUserByGitHubID(ctx context.Context, githubID string) (*models.User, error) {
+func (s *UserService) GetUserByGitHubID(ctx context.Context, githubID string) (*models.UserDocument, error) {
 	return s.repo.FindByGitHubID(ctx, githubID)
 }
 
@@ -38,7 +38,7 @@ func (s *UserService) GetUserGitHubToken(ctx context.Context, id string) (string
 	return user.AccessToken, nil
 }
 
-func (s *UserService) GetAllUsers(ctx context.Context) ([]*models.User, error) {
+func (s *UserService) GetAllUsers(ctx context.Context) ([]*models.UserDocument, error) {
 	return s.repo.FindAll(ctx)
 }
 

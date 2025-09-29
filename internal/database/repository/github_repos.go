@@ -18,12 +18,12 @@ func NewGitHubReposRepository(client *mongo.Database) *MongoGitHubReposRepositor
 	return &MongoGitHubReposRepository{collection: collection}
 }
 
-func (r *MongoGitHubReposRepository) Create(ctx context.Context, repo *models.GitHubRepository) error {
+func (r *MongoGitHubReposRepository) Create(ctx context.Context, repo *models.RepositoryDocument) error {
 	_, err := r.collection.InsertOne(ctx, repo)
 	return err
 }
 
-func (r *MongoGitHubReposRepository) CreateMany(ctx context.Context, repos []*models.GitHubRepository) error {
+func (r *MongoGitHubReposRepository) CreateMany(ctx context.Context, repos []*models.RepositoryDocument) error {
 	docs := make([]any, len(repos))
 	for i, repo := range repos {
 		docs[i] = repo
@@ -32,8 +32,8 @@ func (r *MongoGitHubReposRepository) CreateMany(ctx context.Context, repos []*mo
 	return err
 }
 
-func (r *MongoGitHubReposRepository) FindByID(ctx context.Context, id string, userID string) (*models.GitHubRepository, error) {
-	var repo models.GitHubRepository
+func (r *MongoGitHubReposRepository) FindByID(ctx context.Context, id string, userID string) (*models.RepositoryDocument, error) {
+	var repo models.RepositoryDocument
 
 	objectID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
@@ -57,7 +57,7 @@ func (r *MongoGitHubReposRepository) FindByID(ctx context.Context, id string, us
 	return &repo, nil
 }
 
-func (r *MongoGitHubReposRepository) FindAllByUser(ctx context.Context, userID string) ([]*models.GitHubRepository, error) {
+func (r *MongoGitHubReposRepository) FindAllByUser(ctx context.Context, userID string) ([]*models.RepositoryDocument, error) {
 	objectID, err := bson.ObjectIDFromHex(userID)
 	if err != nil {
 		return nil, err
@@ -70,9 +70,9 @@ func (r *MongoGitHubReposRepository) FindAllByUser(ctx context.Context, userID s
 	}
 	defer cursor.Close(ctx)
 
-	var repos []*models.GitHubRepository
+	var repos []*models.RepositoryDocument
 	for cursor.Next(ctx) {
-		var repo models.GitHubRepository
+		var repo models.RepositoryDocument
 		if err := cursor.Decode(&repo); err != nil {
 			return nil, err
 		}

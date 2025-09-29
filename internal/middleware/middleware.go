@@ -10,15 +10,9 @@ import (
 // Boilerplate for custom fiber middleware
 func Guard() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		authHeader := c.Get("Authorization")
+		authToken := c.Cookies("auth_token")
 
-		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "No token provided.",
-			})
-		}
-
-		parts := strings.Split(authHeader, " ")
+		parts := strings.Split(authToken, " ")
 		tokenType, tokenString := parts[0], parts[1]
 		if len(parts) != 2 || tokenType != "Bearer" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
