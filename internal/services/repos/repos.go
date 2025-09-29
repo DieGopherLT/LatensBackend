@@ -23,22 +23,18 @@ func (s *ReposService) CreateManyRepositories(ctx context.Context, repos []*mode
 	return s.repo.CreateMany(ctx, repos)
 }
 
-func (s *ReposService) GetRepositoryByID(ctx context.Context, id string) (*models.GitHubRepository, error) {
-	return s.repo.FindByID(ctx, id)
+func (s *ReposService) GetRepositoryByID(ctx context.Context, id string, userID string) (*models.GitHubRepository, error) {
+	return s.repo.FindByID(ctx, id, userID)
 }
 
 func (s *ReposService) GetRepositoriesByUserID(ctx context.Context, userID string) ([]*models.GitHubRepository, error) {
-	return s.repo.FindByUserID(ctx, userID)
+	return s.repo.FindAllByUser(ctx, userID)
 }
 
-func (s *ReposService) GetAllRepositories(ctx context.Context) ([]*models.GitHubRepository, error) {
-	return s.repo.FindAll(ctx)
+func (s *ReposService) UpdateRepository(ctx context.Context, id string, userID string, update map[string]any) error {
+	return s.repo.Update(ctx, id, userID, update)
 }
 
-func (s *ReposService) UpdateRepository(ctx context.Context, id string, update map[string]any) error {
-	return s.repo.Update(ctx, id, update)
-}
-
-func (s *ReposService) DeleteRepository(ctx context.Context, id string) error {
-	return s.repo.Delete(ctx, id)
+func (s *ReposService) DeleteRepository(ctx context.Context, id string, userID string) error {
+	return s.repo.Delete(ctx, id, userID)
 }

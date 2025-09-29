@@ -8,6 +8,7 @@ import (
 	"github.com/DieGopherLT/LatensBackend/internal/services/users"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // ReposHandler handles requests related to GitHub repositories
@@ -22,7 +23,9 @@ func NewReposHandler(reposService *repos.ReposService, githubService *github.Git
 }
 
 func (h *ReposHandler) GetRepos(c *fiber.Ctx) error {
-	repos, err := h.reposService.GetAllRepositories(c.Context())
+	user := c.Locals("user").(token.Payload)
+
+	repos, err := h.reposService.GetRepositoriesByUserID(c.Context(), user.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to fetch repositories. Please try later.",
@@ -48,6 +51,14 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 		})
 	}
 
+	userID, err := bson.ObjectIDFromHex(user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to parse user ID. Please try later.",
+			"details": err.Error(),
+		})
+	}
+
 	for {
 		response, err := h.githubService.GetUserRepositories(c.Context(), userGithubToken, first, after)
 		if err != nil {
@@ -61,6 +72,7 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 		newRepos := lo.Map(response.Data.Viewer.Repositories.Nodes, func(repo github.OwnedRepository, _ int) *models.GitHubRepository {
 			return &models.GitHubRepository{
 				GitHubID:    repo.ID,
+				UserID:      userID,
 				Name:        repo.Name,
 				FullName:    repo.NameWithOwner,
 				Description: repo.Description,

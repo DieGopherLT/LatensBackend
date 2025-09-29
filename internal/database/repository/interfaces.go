@@ -18,9 +18,8 @@ type UserRepository interface {
 type GitHubReposRepository interface {
 	Create(ctx context.Context, repo *models.GitHubRepository) error
 	CreateMany(ctx context.Context, repos []*models.GitHubRepository) error
-	FindByID(ctx context.Context, id string) (*models.GitHubRepository, error)
-	FindByUserID(ctx context.Context, userID string) ([]*models.GitHubRepository, error)
-	FindAll(ctx context.Context) ([]*models.GitHubRepository, error)
-	Update(ctx context.Context, id string, update map[string]any) error
-	Delete(ctx context.Context, id string) error
+	FindByID(ctx context.Context, id string, userID string) (*models.GitHubRepository, error)
+	FindAllByUser(ctx context.Context, userID string) ([]*models.GitHubRepository, error)
+	Update(ctx context.Context, id string, userID string, update map[string]any) error
+	Delete(ctx context.Context, id string, userID string) error
 }
