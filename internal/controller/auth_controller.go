@@ -2,7 +2,6 @@ package controller
 
 import (
 	"log"
-	"time"
 
 	"github.com/DieGopherLT/LatensBackend/internal/database/models"
 	"github.com/DieGopherLT/LatensBackend/internal/services/github"
@@ -90,11 +89,10 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 				"details": err.Error(),
 			})
 		}
-		h.setAuthCookie(c, jwtToken)
-
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"message": "User created successfully",
 			"user":    user,
+			"token":   jwtToken,
 		})
 	}
 
@@ -123,22 +121,10 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	h.setAuthCookie(c, jwtToken)
-
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Auth synced successfully",
 		"user":    user,
+		"token":   jwtToken,
 	})
 }
 
-func (h *AuthHandler) setAuthCookie(c *fiber.Ctx, token string) {
-	c.Cookie(&fiber.Cookie{
-		Name:     "auth_token",
-		Value:    token,
-		HTTPOnly: true,
-		Secure:   true,
-		SameSite: "Strict",
-		MaxAge:   int(time.Hour * 24 * 7 / time.Second), // 7 days
-		Path:     "/",
-	})
-}

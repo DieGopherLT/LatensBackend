@@ -10,15 +10,22 @@ import (
 // Boilerplate for custom fiber middleware
 func Guard() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		authToken := c.Cookies("auth_token")
+		authHeader := c.Get("Authorization")
 
-		parts := strings.Split(authToken, " ")
-		tokenType, tokenString := parts[0], parts[1]
-		if len(parts) != 2 || tokenType != "Bearer" {
+		if authHeader == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "No token provided.",
+			})
+		}
+
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "Invalid token format.",
 			})
 		}
+
+		tokenString := parts[1]
 
 		// Parse JWT using token service
 		payload, err := token.Parse(tokenString)
