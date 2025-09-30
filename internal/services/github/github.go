@@ -84,16 +84,17 @@ func (s *GithubService) GetInformationForAwakening(ctx context.Context, token, o
 }
 
 // GetUserRepositories fetches only repositories owned by the authenticated user (basic tier)
-func (s *GithubService) GetUserRepositories(ctx context.Context, token string, first int, after *string) (*OwnedRepositoriesResponse, error) {
+func (s *GithubService) GetUserRepositories(ctx context.Context, token string, first int, after string) (*OwnedRepositoriesResponse, error) {
 	gqlClient := graphql.NewAuthenticatedClient(GITHUB_GRAPHQL_ENDPOINT, token)
+
+	var afterPtr *string
+	if after != "" {
+		afterPtr = &after
+	}
 
 	variables := map[string]any{
 		"first": first,
-	}
-
-	// Add cursor for pagination if provided
-	if after != nil {
-		variables["after"] = *after
+		"after": afterPtr,
 	}
 
 	return graphql.ExecuteQuery[OwnedRepositoriesResponse](gqlClient, ctx, OwnedRepositoriesQuery, variables)

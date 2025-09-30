@@ -238,11 +238,6 @@ const (
 							color
 						}
 
-						# Default branch for sleep analysis
-						defaultBranchRef {
-							name
-						}
-
 						# Repository state flags for filtering
 						isPrivate
 						isArchived

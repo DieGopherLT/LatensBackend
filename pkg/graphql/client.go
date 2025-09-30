@@ -30,8 +30,8 @@ func ExecuteQuery[T any](c *Client, ctx context.Context, query Query, variables 
 		return nil, fmt.Errorf("GraphQL client not initialized")
 	}
 
-	// Execute the query using the raw client
-	raw, err := c.gqlClient.QueryRaw(ctx, string(query), variables)
+	// Execute the query using ExecRaw for string queries
+	raw, err := c.gqlClient.ExecRaw(ctx, string(query), variables)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute GraphQL query: %w", err)
 	}
@@ -46,19 +46,19 @@ func ExecuteQuery[T any](c *Client, ctx context.Context, query Query, variables 
 }
 
 // ExecuteQueryRaw executes a GraphQL query with variables and returns the raw response
-func (c *Client) ExecuteQueryRaw(ctx context.Context, query Query, variables map[string]any) (map[string]interface{}, error) {
+func (c *Client) ExecuteQueryRaw(ctx context.Context, query Query, variables map[string]any) (map[string]any, error) {
 	if c.gqlClient == nil {
 		return nil, fmt.Errorf("GraphQL client not initialized")
 	}
 
-	// Execute the query using the raw client
-	raw, err := c.gqlClient.QueryRaw(ctx, string(query), variables)
+	// Execute the query using ExecRaw for string queries
+	raw, err := c.gqlClient.ExecRaw(ctx, string(query), variables)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute GraphQL query: %w", err)
 	}
 
 	// Parse the raw response
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(raw, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal GraphQL response: %w", err)
 	}
@@ -73,8 +73,8 @@ func ExecuteMutation[T any](c *Client, ctx context.Context, mutation Query, vari
 		return nil, fmt.Errorf("GraphQL client not initialized")
 	}
 
-	// Execute the mutation using the raw client
-	raw, err := c.gqlClient.MutateRaw(ctx, string(mutation), variables)
+	// Execute the mutation using ExecRaw for string mutations
+	raw, err := c.gqlClient.ExecRaw(ctx, string(mutation), variables)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute GraphQL mutation: %w", err)
 	}
@@ -89,19 +89,19 @@ func ExecuteMutation[T any](c *Client, ctx context.Context, mutation Query, vari
 }
 
 // ExecuteMutationRaw executes a GraphQL mutation with variables and returns the raw response
-func (c *Client) ExecuteMutationRaw(ctx context.Context, mutation Query, variables map[string]any) (map[string]interface{}, error) {
+func (c *Client) ExecuteMutationRaw(ctx context.Context, mutation Query, variables map[string]any) (map[string]any, error) {
 	if c.gqlClient == nil {
 		return nil, fmt.Errorf("GraphQL client not initialized")
 	}
 
-	// Execute the mutation using the raw client
-	raw, err := c.gqlClient.MutateRaw(ctx, string(mutation), variables)
+	// Execute the mutation using ExecRaw for string mutations
+	raw, err := c.gqlClient.ExecRaw(ctx, string(mutation), variables)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute GraphQL mutation: %w", err)
 	}
 
 	// Parse the raw response
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(raw, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal GraphQL response: %w", err)
 	}
