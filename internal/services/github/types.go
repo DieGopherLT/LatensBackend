@@ -139,27 +139,25 @@ type SleepAnalysisResponse struct {
 
 // OwnedRepositoriesResponse represents the response from the owned repositories query (basic tier)
 type OwnedRepositoriesResponse struct {
-	Data struct {
-		Viewer struct {
-			Login        string `json:"login"`
-			Repositories struct {
-				PageInfo struct {
-					HasNextPage     bool   `json:"hasNextPage"`
-					HasPreviousPage bool   `json:"hasPreviousPage"`
-					StartCursor     string `json:"startCursor"`
-					EndCursor       string `json:"endCursor"`
-				} `json:"pageInfo"`
-				TotalCount int                         `json:"totalCount"`
-				Nodes      []OwnedRepository `json:"nodes"`
-			} `json:"repositories"`
-		} `json:"viewer"`
-		RateLimit struct {
-			Limit     int       `json:"limit"`
-			Cost      int       `json:"cost"`
-			Remaining int       `json:"remaining"`
-			ResetAt   time.Time `json:"resetAt"`
-		} `json:"rateLimit"`
-	} `json:"data"`
+	Viewer struct {
+		Login        string `json:"login"`
+		Repositories struct {
+			PageInfo struct {
+				HasNextPage     bool   `json:"hasNextPage"`
+				HasPreviousPage bool   `json:"hasPreviousPage"`
+				StartCursor     string `json:"startCursor"`
+				EndCursor       string `json:"endCursor"`
+			} `json:"pageInfo"`
+			TotalCount int               `json:"totalCount"`
+			Nodes      []OwnedRepository `json:"nodes"`
+		} `json:"repositories"`
+	} `json:"viewer"`
+	RateLimit struct {
+		Limit     int       `json:"limit"`
+		Cost      int       `json:"cost"`
+		Remaining int       `json:"remaining"`
+		ResetAt   time.Time `json:"resetAt"`
+	} `json:"rateLimit"`
 }
 
 // OwnedRepository represents essential information for user-owned repositories (basic tier)

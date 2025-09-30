@@ -201,19 +201,16 @@ const (
 	// OwnedRepositoriesQuery fetches only repositories owned by the authenticated user (basic tier)
 	OwnedRepositoriesQuery graphql.Query = `
 		query GetOwnedRepositories($first: Int!, $after: String) {
-			# Get only repositories owned by authenticated user (basic tier)
 			viewer {
 				login
 
-				# Only owned repositories (no collaborations or organizations)
 				repositories(
 					first: $first
 					after: $after
 					orderBy: {field: PUSHED_AT, direction: DESC}
 					ownerAffiliations: [OWNER]
-					isFork: false  # Exclude forks for cleaner personal repos list
+					isFork: false
 				) {
-					# Pagination information
 					pageInfo {
 						hasNextPage
 						hasPreviousPage
@@ -223,44 +220,36 @@ const (
 
 					totalCount
 
-					# Repository nodes with essential dashboard information
 					nodes {
-						# Basic identification
 						id
 						name
 						nameWithOwner
 						url
 
-						# Repository metadata
 						description
 						primaryLanguage {
 							name
 							color
 						}
 
-						# Repository state flags for filtering
 						isPrivate
 						isArchived
 						isFork
 						isDisabled
 						isEmpty
 
-						# Critical dates for sleep score calculation
 						createdAt
 						updatedAt
 						pushedAt
 
-						# Metrics for dashboard display
 						stargazerCount
 						forkCount
 						diskUsage
 
-						# Recent activity indicators (for quick sleep assessment)
 						defaultBranchRef {
 							name
 							target {
 								... on Commit {
-									# Latest commit info for sleep calculation
 									oid
 									committedDate
 									message
@@ -271,7 +260,6 @@ const (
 							}
 						}
 
-						# Activity metrics for sleep score (simplified for individual repos)
 						issues(states: OPEN) {
 							totalCount
 						}
@@ -280,7 +268,6 @@ const (
 							totalCount
 						}
 
-						# Repository topics (reduced for basic tier)
 						repositoryTopics(first: 5) {
 							nodes {
 								topic {
@@ -289,7 +276,6 @@ const (
 							}
 						}
 
-						# License information
 						licenseInfo {
 							name
 							spdxId
@@ -298,7 +284,6 @@ const (
 				}
 			}
 
-			# Rate limiting information for API management
 			rateLimit {
 				limit
 				cost

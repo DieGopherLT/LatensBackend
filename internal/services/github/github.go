@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -96,6 +97,8 @@ func (s *GithubService) GetUserRepositories(ctx context.Context, token string, f
 		"first": first,
 		"after": afterPtr,
 	}
+
+	log.Println("Fetching user repositories with variables:", variables)
 
 	return graphql.ExecuteQuery[OwnedRepositoriesResponse](gqlClient, ctx, OwnedRepositoriesQuery, variables)
 }

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"time"
 
 	"github.com/DieGopherLT/LatensBackend/internal/database/models"
@@ -34,16 +35,20 @@ func (h *ReposHandler) GetRepos(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(repos) == 0 {
+		repos = []*models.RepositoryDocument{}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"repos": repos,
 	})
 }
 
 func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
-	user := c.Locals("user").(token.Payload)	
-	
+	user := c.Locals("user").(token.Payload)
+
 	var repos []*models.RepositoryDocument
-	var after *string
+	var after string
 	first := 25
 
 	userGithubToken, err := h.userService.GetUserGitHubToken(c.Context(), user.UserID)
@@ -64,15 +69,18 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 	for {
 		response, err := h.githubService.GetUserRepositories(c.Context(), userGithubToken, first, after)
 		if err != nil {
+			log.Println("Error fetching user repositories from GitHub:", err.Error())
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to sync repositories from GitHub. Please try later",
 				"details": err.Error(),
 			})
 		}
 
-		after = &response.Data.Viewer.Repositories.PageInfo.EndCursor
+		log.Println("Fetched", len(response.Viewer.Repositories.Nodes), "repositories from GitHub for user", user.UserID)
+
+		after = response.Viewer.Repositories.PageInfo.EndCursor
 		syncTime := time.Now()
-		newRepos := lo.Map(response.Data.Viewer.Repositories.Nodes, func(repo github.OwnedRepository, _ int) *models.RepositoryDocument {
+		newRepos := lo.Map(response.Viewer.Repositories.Nodes, func(repo github.OwnedRepository, _ int) *models.RepositoryDocument {
 			return &models.RepositoryDocument{
 				GitHubID:    repo.ID,
 				UserID:      userID,
@@ -104,12 +112,17 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 				},
 			}
 		})
+
+		log.Println("Fetched", len(newRepos), "repositories from GitHub for user", user.UserID)
+
 		repos = append(repos, newRepos...)
 
-		if !response.Data.Viewer.Repositories.PageInfo.HasNextPage {
+		if !response.Viewer.Repositories.PageInfo.HasNextPage {
 			break
 		}
 	}
+
+	log.Println("Synced", len(repos), "repositories for user", user.UserID)
 
 	if len(repos) > 0 {
 		err := h.reposService.CreateManyRepositories(c.Context(), repos)
