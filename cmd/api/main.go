@@ -11,6 +11,7 @@ import (
 	"github.com/DieGopherLT/LatensBackend/internal/config"
 	"github.com/DieGopherLT/LatensBackend/internal/database"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -35,6 +36,13 @@ func main() {
 	}()
 
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000, https://latens.vercel.app",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowMethods: "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+	}))
+
 	app.Use(logger.New(logger.Config{
 		Format:        "[${time}] ${status} - ${method} ${path}\n${error}",
 		TimeFormat:    "02-Jan-2006 15:04:05",
