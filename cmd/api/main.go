@@ -50,7 +50,10 @@ func main() {
 		DisableColors: false,
 	}))
 
-	setupRoutes(app, db)
+	err = setupRoutes(app, db)
+	if err != nil {
+		log.Fatal("Failed to setup routes: ", err.Error())
+	}
 
 	go func() {
 		if err := app.Listen(fmt.Sprintf(":%s", cfg.Port)); err != nil {

@@ -11,11 +11,14 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-func setupRoutes(app *fiber.App, db *mongo.Database) *fiber.App {
+func setupRoutes(app *fiber.App, db *mongo.Database) error {
 
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
-	githubRepository := repository.NewGitHubReposRepository(db)
+	githubRepository, err := repository.NewGitHubReposRepository(db)
+	if err != nil {
+		return err
+	}
 
 	// Services
 	githubService := github.NewGithubService()
@@ -49,5 +52,5 @@ func setupRoutes(app *fiber.App, db *mongo.Database) *fiber.App {
 	// Auth routes
 	auth.Post("/login", authHandler.Login)
 
-	return app
+	return nil
 }
