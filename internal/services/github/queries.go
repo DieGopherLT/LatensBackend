@@ -211,6 +211,7 @@ const (
 					ownerAffiliations: [OWNER]
 					isFork: false
 				) {
+					# Pagination information for batched fetching
 					pageInfo {
 						hasNextPage
 						hasPreviousPage
@@ -218,34 +219,64 @@ const (
 						endCursor
 					}
 
+					# Total number of repositories owned by user
 					totalCount
 
 					nodes {
+						# Basic repository identification
 						id
 						name
 						nameWithOwner
 						url
-
 						description
+
+						# Primary programming language
 						primaryLanguage {
 							name
 							color
 						}
 
+						# Repository state flags
 						isPrivate
 						isArchived
 						isFork
 						isDisabled
 						isEmpty
 
+						# Critical dates for sleep score calculation
 						createdAt
 						updatedAt
 						pushedAt
 
+						# Repository metrics
 						stargazerCount
 						forkCount
 						diskUsage
 
+						# Activity indicators
+						issues(states: OPEN) {
+							totalCount
+						}
+						pullRequests(states: OPEN) {
+							totalCount
+						}
+
+						# Repository topics for categorization
+						repositoryTopics(first: 5) {
+							nodes {
+								topic {
+									name
+								}
+							}
+						}
+
+						# License information
+						licenseInfo {
+							name
+							spdxId
+						}
+
+						# Default branch with commit history for sleep analysis
 						defaultBranchRef {
 							name
 							target {
@@ -256,29 +287,42 @@ const (
 									author {
 										name
 									}
+
+									# Total commit count for activity measurement
+									history(first: 0) {
+										totalCount
+									}
 								}
 							}
 						}
 
-						issues(states: OPEN) {
+						# All branches for dormancy detection
+						refs(
+							refPrefix: "refs/heads/"
+							first: 50
+							orderBy: {field: TAG_COMMIT_DATE, direction: DESC}
+						) {
+							# Total number of branches
 							totalCount
-						}
 
-						pullRequests(states: OPEN) {
-							totalCount
-						}
-
-						repositoryTopics(first: 5) {
-							nodes {
-								topic {
+							edges {
+								node {
+									# Branch name
 									name
+
+									# Latest commit on this branch
+									target {
+										... on Commit {
+											oid
+											committedDate
+											message
+											author {
+												name
+											}
+										}
+									}
 								}
 							}
-						}
-
-						licenseInfo {
-							name
-							spdxId
 						}
 					}
 				}

@@ -83,25 +83,66 @@ Latens analiza proyectos "dormidos" y genera insights sobre:
 
 Este contexto informa las decisiones arquitectónicas hacia flexibilidad y capacidad de análisis retrospectivo.
 
-## Convenciones de Naming para GraphQL
+## Fórmula de Sleep Score
 
-### Tipos de respuesta GraphQL
-- **Respuestas de API**: Sufijo `Response` (ej: `RepositoryMetadataResponse`, `SleepAnalysisResponse`)
-- **Entidades de dominio**: Sin sufijo (ej: `OwnedRepository`, `User`, `Repository`)
+### Lógica de Cálculo
 
-### Ejemplo:
-```go
-// ✅ Correcto - Respuesta de GraphQL
-type OwnedRepositoriesResponse struct {
-    Data struct {
-        Viewer struct {
-            Repositories struct {
-                Nodes []OwnedRepository  // ✅ Entidad sin sufijo
-            }
-        }
-    }
-}
-
-// ❌ Incorrecto - No usar Summary para entidades
-type OwnedRepositorySummary struct { ... }
+**Decisión simplificada:**
 ```
+if repo.isArchived || repo.isDisabled || repo.isFork:
+    return 100
+
+if !hasMultipleBranches || días_desde_último_commit > 180:
+    return InactivityScore
+else:
+    return (0.5 × InactivityScore) + (0.3 × FragmentationScore) + (0.2 × StalenessScore)
+```
+
+**Resultado final:**
+```
+SleepScore = max(0, min(100, score))
+```
+
+### Componentes
+
+**InactivityScore = min(100, (días_desde_último_commit / 180) × 100)**
+
+Donde:
+- días_desde_último_commit = hoy - defaultBranchRef.target.committedDate
+- 180 días = Umbral de "profundamente dormido" (6 meses)
+
+---
+
+**FragmentationScore = min(100, (branches_adelantadas / 3) × 100)**
+
+Donde:
+- branches_adelantadas = COUNT(refs WHERE target.committedDate > defaultBranch.target.committedDate)
+- 3 ramas = Umbral de "dispersión alta"
+
+---
+
+**StalenessScore = min(100, (avg_días_último_commit_branches / 90) × 100)**
+
+Donde:
+- avg_días_último_commit_branches = promedio de (hoy - target.committedDate)
+  para todas las ramas con target.committedDate > defaultBranch.target.committedDate
+- 90 días = Umbral de "ramas obsoletas"
+
+---
+
+### Pesos y Umbrales
+
+**Pesos de componentes:**
+- Inactividad: 50% (factor dominante)
+- Fragmentación: 30% (indicador secundario)
+- Obsolescencia: 20% (complementaria)
+
+**Umbrales configurados:**
+- Inactividad: 180 días (6 meses)
+- Fragmentación: 3 branches
+- Obsolescencia: 90 días (3 meses)
+
+**Complejidad computacional:**
+- Mejor caso (repo simple/viejo): O(1)
+- Peor caso (repo complejo < 6 meses): O(n) donde n ≤ 50 branches
+- Totalmente viable para cálculo síncrono durante sync

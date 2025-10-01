@@ -15,6 +15,7 @@ type UserDocument struct {
 
 type RepositoryDocument struct {
 	ID                bson.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	SleepScore        int             `bson:"sleep_score" json:"sleep_score"`
 	UserID            bson.ObjectID `bson:"user_id" json:"user_id"`
 	GitHubID          string          `bson:"github_id" json:"github_id"`
 	Name              string          `bson:"name" json:"name"`
@@ -24,6 +25,7 @@ type RepositoryDocument struct {
 	IsFork            bool            `bson:"is_fork" json:"is_fork"`
 	IsDisabled        bool            `bson:"is_disabled" json:"is_disabled"`
 	IsArchived        bool            `bson:"is_archived" json:"is_archived"`
+	IsHidden          bool            `bson:"is_hidden,omitempty" json:"is_hidden"`
 	URL               string          `bson:"url" json:"url"`
 	DefaultBranch     DefaultBranch   `bson:"default_branch" json:"default_branch"`
 	CreatedAt         string          `bson:"created_at" json:"created_at"`

@@ -185,6 +185,9 @@ type OwnedRepository struct {
 			Author struct {
 				Name string `json:"name"`
 			} `json:"author"`
+			History struct {
+				TotalCount int `json:"totalCount"`
+			} `json:"history"`
 		} `json:"target"`
 	} `json:"defaultBranchRef"`
 
@@ -228,4 +231,22 @@ type OwnedRepository struct {
 		Name   string `json:"name"`
 		SpdxId string `json:"spdxId"`
 	} `json:"licenseInfo"`
+
+	// All branches for activity analysis
+	Refs struct {
+		TotalCount int `json:"totalCount"`
+		Edges      []struct {
+			Node struct {
+				Name   string `json:"name"`
+				Target struct {
+					Oid           string    `json:"oid"`
+					CommittedDate time.Time `json:"committedDate"`
+					Message       string    `json:"message"`
+					Author        struct {
+						Name string `json:"name"`
+					} `json:"author"`
+				} `json:"target"`
+			} `json:"node"`
+		} `json:"edges"`
+	} `json:"refs"`
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/DieGopherLT/LatensBackend/internal/database/models"
 	"github.com/DieGopherLT/LatensBackend/internal/services/github"
 	"github.com/DieGopherLT/LatensBackend/internal/services/repos"
+	"github.com/DieGopherLT/LatensBackend/internal/services/sleep"
 	"github.com/DieGopherLT/LatensBackend/internal/services/token"
 	"github.com/DieGopherLT/LatensBackend/internal/services/users"
 	"github.com/gofiber/fiber/v2"
@@ -84,6 +85,7 @@ func (h *ReposHandler) SyncRepos(c *fiber.Ctx) error{
 			return &models.RepositoryDocument{
 				GitHubID:    repo.ID,
 				UserID:      userID,
+				SleepScore:  sleep.CalculateScore(&repo),
 				Name:        repo.Name,
 				FullName:    repo.NameWithOwner,
 				Description: repo.Description,
